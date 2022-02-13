@@ -1,8 +1,11 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
+
 
 typedef long double real;
 
@@ -24,7 +27,7 @@ typedef struct Node
 {
 	// 0 - int, 1 - char
 	int flag;
-	int number;
+	double number;
 	char operation;
 } node;
 
@@ -34,37 +37,129 @@ typedef struct Node_arr
 	int length;
 } node_arr;
 
+void push_back(string* str, char n)
+{
+	string new_str;
+	new_str.length = str->length + 1;
+	new_str.data = (char*)malloc(sizeof(char) * new_str.length);
+
+	for (int i = 0; i < str->length; ++i)
+		new_str.data[i] = str->data[i];
+	new_str.data[str->length] = n;
+
+	str->data = new_str.data;
+	str->length = new_str.length;
+}
+
 node_arr translate_to_notation(string* expression)
 {
-	int notation_length = 0, notation_capacity = 1;
-	node* notation = (node*)calloc(notation_capacity, sizeof(node));
+	int notation_capacity = 1;
+	int operations_capacity = 1;
+	
+	node_arr nodes;
+	nodes.arr = (node*)calloc(notation_capacity, sizeof(node));
+	nodes.length = 0;
 
 	string operations;
 	operations.length = 0;
-	int operations_capacity = 1;
 	operations.data = (char*)calloc(operations_capacity, sizeof(char));
+
+	string var;
+	real var_value = -1;
+	var.length = 0;
+	var.data = (char*)calloc(operations_capacity, sizeof(char));
+
 
 	int number = -1;
 	for (int i = 0; i < expression->length; ++i)
 	{
-		if (expression->data[i] >= '0' && expression->data[i] <= '9')
+		if ((expression->data[i] >= '0' && expression->data[i] <= '9') || 
+			(expression->data[i] >= 'a' && expression->data[i] <= 'Z'))
 		{
-			if (number == -1)
-				number = 0;
-			number = number * 10 + expression->data[i] - 48;
-			continue;
-		}
-		if (number != -1)
-		{
-			if (notation_length >= notation_capacity) {
-				notation = (node*)realloc(notation, ++notation_capacity * sizeof(node));
+			if (expression->data[i] >= '0' && expression->data[i] <= '9')
+			{
+				if (number == -1)
+					number = 0;
+				number = number * 10 + expression->data[i] - 48;
+				continue;
 			}
-			notation[notation_length++].flag = 0;
-			notation[notation_length].number = number;
+			else
+			{
+				if (var_value == -1)
+					var_value = 0;
+				push_back(&var, expression->data[i]);
+				continue;
+			}
+		}
+
+		if (number != -1 || var_value != -1)
+		{
+			if (var_value != -1) {
+				printf("%s = ", var.data);
+				scanf("%lf", &var_value);
+				
+				free(var.data);
+				var.length = 0;
+				var.data = (char*)calloc(operations_capacity, sizeof(char));
+				number = var_value;
+			}
+
+			if (nodes.length >= notation_capacity) 
+			{
+				nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+			}
+			nodes.arr[nodes.length++].flag = 0;
+			nodes.arr[nodes.length].number = number;
 		}
 		number = -1;
+		var_value = -1;
 		
+		switch (expression->data[i]) {
+		case '(':
+			push_back(&operations, ')');
+			break;
+		case '+':
+			push_back(&operations, '+');
+			break;
+		case '-':
+			push_back(&operations, '-');
+			break;
+		case '*':
+			push_back(&operations, '*');
+			break;
+		case '/':
+			push_back(&operations, '/');
+			break;
+		case '^':
+			push_back(&operations, '^');
+			break;
+		case ')':
+			for (int j = operations.length - 1; j > -1; --j) {
+				if (operations.data[j] == '(') {
+					operations.length -= (operations.length - j);
+					break;
+				}
+
+				if (nodes.length >= notation_capacity) {
+					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+				}
+				nodes.arr[nodes.length++].flag = 1;
+				nodes.arr[nodes.length].operation = operations.data[j];
+			}
+		}
 	}
+
+	if (operations.length != 0) {
+		for (int j = operations.length - 1; j > -1; --j) {
+
+			if (nodes.length >= notation_capacity) {
+				nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+			}
+			nodes.arr[nodes.length++].flag = 1;
+			nodes.arr[nodes.length].operation = operations.data[j];
+		}
+	}
+	return nodes;
 }
 
 void init(string* str, char* _str)
@@ -95,7 +190,7 @@ void erase(string* str, int begin, int count)
 {
 	string new_str;
 	new_str.length = str->length - count;
-	new_str.data = malloc(sizeof(char) * new_str.length);
+	new_str.data = (char*)malloc(sizeof(char) * new_str.length);
 
 	for (int i = 0; i < begin; ++i)
 		new_str.data[i] = str->data[i];
@@ -110,7 +205,7 @@ void na_erase(node_arr* data, int begin, int count)
 {
 	node_arr new_data;
 	new_data.length = data->length - count;
-	new_data.arr = malloc(sizeof(node*) * new_data.length);
+	new_data.arr = (node*)malloc(sizeof(node) * new_data.length);
 
 	for (int i = 0; i < begin; ++i)
 		new_data.arr[i] = data->arr[i];
@@ -125,7 +220,7 @@ void insert(string* str, int index, string under)
 {
 	string new_str;
 	new_str.length = str->length + under.length;
-	new_str.data = malloc(sizeof(char) * new_str.length);
+	new_str.data = (char*)malloc(sizeof(char) * new_str.length);
 
 	for (int i = 0; i < index; ++i)
 		new_str.data[i] = str->data[i];
@@ -133,20 +228,6 @@ void insert(string* str, int index, string under)
 		new_str.data[index + i] = under.data[i];
 	for (int i = index; i < str->length; ++i)
 		new_str.data[i + under.length] = str->data[i];
-
-	str->data = new_str.data;
-	str->length = new_str.length;
-}
-
-void push_back(string* str, char n)
-{
-	string new_str;
-	new_str.length = str->length + 1;
-	new_str.data = malloc(sizeof(char) * new_str.length);
-
-	for (int i = 0; i < str->length; ++i)
-		new_str.data[i] = str->data[i];
-	new_str.data[str->length] = n;
 
 	str->data = new_str.data;
 	str->length = new_str.length;
@@ -191,6 +272,4 @@ real _CALC(node_arr data)
 
 int main()
 {
-	char* str_ =
-		return 0;
 }
