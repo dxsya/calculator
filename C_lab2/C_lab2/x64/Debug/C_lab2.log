@@ -1,4 +1,4 @@
 ﻿  Source.cpp
-C:\Users\Alexey\Documents\dosya\calculator\C_lab2\C_lab2\Source.cpp(104,14): warning C4244: =: преобразование "real" в "int", возможна потеря данных
-C:\Users\Alexey\Documents\dosya\calculator\C_lab2\C_lab2\Source.cpp(168,28): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
+C:\Users\Alexey\Documents\dosya\calculator\C_lab2\C_lab2\Source.cpp(105,14): warning C4244: =: преобразование "real" в "int", возможна потеря данных
+C:\Users\Alexey\Documents\dosya\calculator\C_lab2\C_lab2\Source.cpp(169,28): warning C4267: =: преобразование из "size_t" в "int"; возможна потеря данных
   C_lab2.vcxproj -> C:\Users\Alexey\Documents\dosya\calculator\C_lab2\x64\Debug\C_lab2.exe
