@@ -2,13 +2,57 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
+
 typedef long double real;
 
-struct String 
+typedef struct String
 {
 	char* data;
 	int length;
-}; typedef struct String string;
+} string;
+
+typedef struct Node
+{
+	// 0 - int, 1 - char
+	int flag;
+	int number;
+	char operation;
+} node;
+
+node* translate_to_notation(string* expression)
+{
+	int notation_length = 0, notation_capacity = 1;
+	node* notation = (node*)calloc(notation_capacity, sizeof(node));
+
+	string operations;
+	operations.length = 0;
+	int operations_capacity = 1;
+	operations.data = (char*)calloc(operations_capacity, sizeof(char));
+
+	int number = -1;
+	for (int i = 0; i < expression->length; ++i)
+	{
+		if (expression->data[i] >= '0' && expression->data[i] <= '9')
+		{
+			if (number == -1)
+				number = 0;
+			number = number * 10 + expression->data[i] - 48;
+			continue;
+		}
+		if (number != -1)
+		{
+			if (notation_length >= notation_capacity) {
+				notation = (node*)realloc(notation, )
+			}
+			notation[size - 1].flag = 0;
+			notation[size - 1].number = number;
+		}
+		number = -1;
+
+
+	}
+}
 
 void init(string* str, char* _str)
 {
@@ -80,13 +124,8 @@ void push_back(string* str, char n)
 	str->length = new_str.length;
 }
 
-void _CALC(string* notation)
+int main()
 {
-	
-}
-
-int main() 
-{
-	
-	return 0;
+	char* str_ =
+		return 0;
 }
