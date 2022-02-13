@@ -27,11 +27,11 @@ typedef struct Node
 {
 	// 0 - int, 1 - char
 	int flag;
-	double number;
+	real number;
 	char operation;
 } node;
 
-typedef struct Node_arr 
+typedef struct Node_arr
 {
 	node* arr;
 	int length;
@@ -59,7 +59,7 @@ node_arr translate_to_notation(string* expression)
 {
 	int notation_capacity = 1;
 	int operations_capacity = 1;
-	
+
 	node_arr nodes;
 	nodes.arr = (node*)calloc(notation_capacity, sizeof(node));
 	nodes.length = 0;
@@ -77,8 +77,9 @@ node_arr translate_to_notation(string* expression)
 	int number = -1;
 	for (int i = 0; i < expression->length; ++i)
 	{
-		if ((expression->data[i] >= '0' && expression->data[i] <= '9') || 
-			(expression->data[i] >= 'a' && expression->data[i] <= 'Z'))
+		if ((expression->data[i] >= '0' && expression->data[i] <= '9') ||
+			(expression->data[i] >= 'A' && expression->data[i] <= 'Z') ||
+			(expression->data[i] >= 'a' && expression->data[i] <= 'z'))
 		{
 			if (expression->data[i] >= '0' && expression->data[i] <= '9')
 			{
@@ -98,17 +99,20 @@ node_arr translate_to_notation(string* expression)
 
 		if (number != -1 || var_value != -1)
 		{
-			if (var_value != -1) {
-				printf("%s = ", var.data);
+			if (var_value != -1) 
+			{
+				for(int IND = 0; IND < var.length; ++IND)
+					printf("%c", var.data[IND]);
+				printf(" = ");
 				scanf("%lf", &var_value);
-				
+
 				free(var.data);
 				var.length = 0;
 				var.data = (char*)calloc(operations_capacity, sizeof(char));
 				number = var_value;
 			}
 
-			if (nodes.length >= notation_capacity) 
+			if (nodes.length >= notation_capacity)
 			{
 				nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
 			}
@@ -117,7 +121,7 @@ node_arr translate_to_notation(string* expression)
 		}
 		number = -1;
 		var_value = -1;
-		
+
 		int len__ = 0;
 		switch (expression->data[i]) {
 		case '(':
@@ -302,10 +306,10 @@ void insert(string* str, int index, string under)
 
 real _CALC(string task)
 {
-	
+
 	remove_space(&task);
 	node_arr data = translate_to_notation(&task);
-	
+
 	for (int i = 0; i < data.length; ++i)
 	{
 		if (data.arr[i].flag)
@@ -342,22 +346,22 @@ real _CALC(string task)
 }
 
 char* get_string(int* len) {
-	*len = 0; 
-	int capacity = 1; 
-	char* s = (char*)malloc(sizeof(char)); 
+	*len = 0;
+	int capacity = 1;
+	char* s = (char*)malloc(sizeof(char));
 
 	char c = getchar();
 
-	
+
 	while (c != '\n') {
-		s[(*len)++] = c; 
+		s[(*len)++] = c;
 
 		if (*len >= capacity) {
 			capacity *= 2;
 			s = (char*)realloc(s, capacity * sizeof(char));
 		}
 
-		c = getchar();   
+		c = getchar();
 	}
 
 	s[*len] = '\0';
@@ -365,7 +369,7 @@ char* get_string(int* len) {
 	return s;
 }
 
-int main() 
+int main()
 {
 	int len;
 	char* s = get_string(&len);
