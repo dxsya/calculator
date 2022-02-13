@@ -35,162 +35,6 @@ typedef struct Node_arr
 	int capacity;
 } node_arr;
 
-void add_node(node_arr* nodes, int flag, int number, char operation) 
-{	
-	if (nodes->capacity == 0)
-		nodes->arr = (node*)calloc(++nodes->capacity, sizeof(node));
-
-	if (nodes->length >= nodes->capacity)
-		nodes->arr = (node*)realloc(nodes->arr, ++nodes->capacity * sizeof(node));
-
-	nodes->arr[nodes->length].flag = flag;
-	nodes->arr[nodes->length].operation = operation;
-	nodes->arr[nodes->length++].number = number;
-}
-
-void push_back(string* str, char n)
-{
-	string new_str;
-	new_str.length = str->length + 1;
-	new_str.data = (char*)malloc(sizeof(char) * new_str.length);
-
-	for (int i = 0; i < str->length; ++i)
-		new_str.data[i] = str->data[i];
-	new_str.data[str->length] = n;
-
-
-	char* temp = str->data;
-	str->data = new_str.data;
-	str->length = new_str.length;
-
-	free(temp);
-}
-
-int get_priority(char main, char a, char b, char c, char d) {
-	return (main == a || main == b || main == c || main == d);
-}
-
-node_arr translate_to_notation(string* expression)
-{
-	int operations_capacity = 1;
-
-	node_arr nodes;
-	nodes.length = 0;
-	nodes.capacity = 0;
-
-	string operations;
-	operations.length = 0;
-	operations.data = (char*)calloc(operations_capacity, sizeof(char));
-
-	string var;
-	var.length = 0;
-	var.data = (char*)calloc(operations_capacity, sizeof(char));
-
-	real var_value = -1;
-	int number = -1;
-
-	for (int i = 0; i < expression->length; ++i)
-	{
-		if ((expression->data[i] >= '0' && expression->data[i] <= '9') ||
-			(expression->data[i] >= 'A' && expression->data[i] <= 'Z') ||
-			(expression->data[i] >= 'a' && expression->data[i] <= 'z'))
-		{
-			if (expression->data[i] >= '0' && expression->data[i] <= '9')
-			{
-				if (number == -1)
-					number = 0;
-				number = number * 10 + expression->data[i] - 48;
-				continue;
-			}
-			else
-			{
-				if (var_value == -1)
-					var_value = 0;
-				push_back(&var, expression->data[i]);
-				continue;
-			}
-		}
-
-		if (number != -1 || var_value != -1)
-		{
-			if (var_value != -1) 
-			{
-				for(int letter = 0; letter < var.length; ++letter)
-					printf("%c", var.data[letter]);
-				printf(" = ");
-				scanf("%lf", &var_value);
-
-				free(var.data);
-				var.length = 0;
-				number = var_value;
-			}
-			add_node(&nodes, 0, number, ' ');
-		}
-		number = -1;
-		var_value = -1;
-
-		int op_len = operations.length;
-		switch (expression->data[i]) {
-		case '(':
-			push_back(&operations, '(');
-			break;
-		case '+':
-			while (op_len > 0 && get_priority(operations.data[op_len - 1], '-', '*', '/', '^'))
-			{
-				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
-			}
-			operations.length = op_len;
-			push_back(&operations, '+');
-			break;
-		case '-':
-			while (op_len > 0 && get_priority(operations.data[op_len - 1], '+', '*', '/', '^'))
-			{
-				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
-			}
-			operations.length = op_len;
-			push_back(&operations, '-');
-			break;
-		case '*':
-			while (op_len > 0 && get_priority(operations.data[op_len - 1], '/', '^', '#', '#'))
-			{
-				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
-			}
-			operations.length = op_len;
-			push_back(&operations, '*');
-			break;
-		case '/':
-			while (op_len > 0 && get_priority(operations.data[op_len - 1], '*', '^', '#', '#'))
-			{
-				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
-			}
-			operations.length = op_len;
-			push_back(&operations, '/');
-			break;
-		case '^':
-			push_back(&operations, '^');
-			break;
-		case ')':
-			for (int j = operations.length - 1; j > -1; --j) {
-				if (operations.data[j] == '(') {
-					operations.length -= (operations.length - j);
-					break;
-				}
-				add_node(&nodes, 1, 0, operations.data[j]);
-			}
-			break;
-		}
-	}
-
-	if (number != -1)
-		add_node(&nodes, 0, number, ' ');
-
-	if (operations.length != 0)
-		for (int j = operations.length - 1; j > -1; --j)
-			add_node(&nodes, 1, 0, operations.data[j]);
-
-	return nodes;
-}
-
 void init(string* str, char* _str)
 {
 	str->data = _str;
@@ -260,6 +104,177 @@ void insert(string* str, int index, string under)
 
 	str->data = new_str.data;
 	str->length = new_str.length;
+}
+
+void push_back(string* str, char n)
+{
+	string new_str;
+	new_str.length = str->length + 1;
+	new_str.data = (char*)malloc(sizeof(char) * new_str.length);
+
+	for (int i = 0; i < str->length; ++i)
+		new_str.data[i] = str->data[i];
+	new_str.data[str->length] = n;
+
+
+	char* temp = str->data;
+	str->data = new_str.data;
+	str->length = new_str.length;
+
+	free(temp);
+}
+
+void add_node(node_arr* nodes, int flag, real number, char operation) 
+{	
+	if (nodes->capacity == 0)
+		nodes->arr = (node*)calloc(++nodes->capacity, sizeof(node));
+
+	if (nodes->length >= nodes->capacity)
+		nodes->arr = (node*)realloc(nodes->arr, ++nodes->capacity * sizeof(node));
+
+	nodes->arr[nodes->length].flag = flag;
+	nodes->arr[nodes->length].operation = operation;
+	nodes->arr[nodes->length++].number = number;
+}
+
+int compare_op(char main, char a, char b, char c, char d)
+{
+	return (main == a || main == b || main == c || main == d);
+}
+
+int get_priority(char main, char operation) 
+{
+	int flag = 0;
+	if (main == '+')
+		return (compare_op(operation, '-', '*', '/', '^'));
+	else if (main == '-')
+		return (compare_op(operation, '+', '*', '/', '^'));
+	else if (main == '*')
+		return (compare_op(operation, '/', '^', '#', '#'));
+	else if (main == '/')
+		return (compare_op(operation, '*', '^', '#', '#'));
+	else if (main == '^')
+		return 0;
+}
+
+node_arr translate_to_notation(string* expression)
+{
+	int operations_capacity = 1;
+
+	node_arr nodes;
+	nodes.length = 0;
+	nodes.capacity = 0;
+
+	string operations;
+	operations.length = 0;
+	operations.data = (char*)calloc(operations_capacity, sizeof(char));
+
+	string num;
+	num.length = 0;
+	num.data = (char*)calloc(operations_capacity, sizeof(char));
+
+	string var;
+	var.length = 0;
+	var.data = (char*)calloc(operations_capacity, sizeof(char));
+
+	real var_value = -1;
+	real number = -1;
+
+	for (int i = 0; i < expression->length; ++i)
+	{
+		if ((expression->data[i] >= '0' && expression->data[i] <= '9') ||
+			(expression->data[i] >= 'A' && expression->data[i] <= 'Z') ||
+			(expression->data[i] >= 'a' && expression->data[i] <= 'z') ||
+			(expression->data[i] == '.'))
+		{
+			if (expression->data[i] >= '0' && expression->data[i] <= '9' || expression->data[i] == '.')
+			{
+				if (number == -1)
+					number = 0;
+				push_back(&num, expression->data[i]);
+				continue;
+			}
+			else
+			{
+				if (var_value == -1)
+					var_value = 0;
+				push_back(&var, expression->data[i]);
+				continue;
+			}
+		}
+
+		if (number != -1 || var_value != -1)
+		{
+			number = atof(num.data);
+			if (var_value != -1) 
+			{
+				for(int letter = 0; letter < var.length; ++letter)
+					printf("%c", var.data[letter]);
+				printf(" = ");
+				scanf("%lf", &var_value);
+
+				free(var.data);
+				var.length = 0;
+				number = var_value;
+			}
+			add_node(&nodes, 0, number, ' ');
+			
+			free(num.data);
+			num.length = 0;
+			num.data = (char*)calloc(operations_capacity, sizeof(char));
+		}
+		number = -1;
+		var_value = -1;
+
+		int op_len = operations.length;
+		if (expression->data[i] == '(')
+			push_back(&operations, '(');
+		else if (expression->data[i] == ')')
+		{
+			for (int j = operations.length - 1; j > -1; --j) 
+			{
+				if (operations.data[j] == '(') 
+				{
+					operations.length -= (operations.length - j);
+					break;
+				}
+				add_node(&nodes, 1, 0, operations.data[j]);
+			}
+		}
+		else if (compare_op(expression->data[i], '+', '-', '*', '/') || expression->data[i] == '^') 
+		{
+			while (op_len > 0 && get_priority(expression->data[i], operations.data[op_len - 1]))
+				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
+			operations.length = op_len;
+			push_back(&operations, expression->data[i]);
+		}
+	}
+
+	if (number != -1 || var_value != -1)
+	{
+		number = atof(num.data);
+		if (var_value != -1)
+		{
+			for (int letter = 0; letter < var.length; ++letter)
+				printf("%c", var.data[letter]);
+			printf(" = ");
+			scanf("%lf", &var_value);
+
+			free(var.data);
+			var.length = 0;
+			number = var_value;
+		}
+		add_node(&nodes, 0, number, ' ');
+		
+		free(num.data);
+		num.data = (char*)calloc(operations_capacity, sizeof(char));
+	}
+
+	if (operations.length != 0)
+		for (int j = operations.length - 1; j > -1; --j)
+			add_node(&nodes, 1, 0, operations.data[j]);
+
+	return nodes;
 }
 
 real _CALC(string task)
