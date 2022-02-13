@@ -5,14 +5,6 @@
 #include <stdbool.h>
 #include <math.h>
 
-/*
-	Error _CALC
-	962957572.248576: translate_to_notation error [wrong sequence, example {3, -, ...}]
-	53587291.5352: division on the zero
-	-1532523.6367: _CALC error [wrong result, example {3, 4} or {}]
-	-53518506.2452: _CALC error [wrong result, example {*}]
-*/
-
 typedef long double real;
 
 typedef struct String
@@ -350,7 +342,13 @@ int main()
 	exp.length = len;
 	exp.data = s;
 
-	printf("%lf\n", _CALC(exp));
+	real answer = _CALC(exp);
+	if (answer == 962957572.248576)
+		printf("Error: invalid input");
+	else if (answer == 53587291.5352)
+		printf("Error: division by zero");
+	else
+		printf("%lf\n", answer);
 
 	return 0;
 }
