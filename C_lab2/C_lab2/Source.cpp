@@ -286,34 +286,33 @@ real _CALC(string task)
 }
 
 char* get_string(int* len) {
-	*len = 0; // изначально строка пуста
-	int capacity = 1; // ёмкость контейнера динамической строки (1, так как точно будет '\0')
-	char* s = (char*)malloc(sizeof(char)); // динамическая пустая строка
+	*len = 0; 
+	int capacity = 1; 
+	char* s = (char*)malloc(sizeof(char)); 
 
-	char c = getchar(); // символ для чтения данных
+	char c = getchar();
 
-	// читаем символы, пока не получим символ переноса строки (\n)
+	
 	while (c != '\n') {
-		s[(*len)++] = c; // заносим в строку новый символ
+		s[(*len)++] = c; 
 
-		// если реальный размер больше размера контейнера, то увеличим его размер
 		if (*len >= capacity) {
-			capacity *= 2; // увеличиваем ёмкость строки в два раза
-			s = (char*)realloc(s, capacity * sizeof(char)); // создаём новую строку с увеличенной ёмкостью  
+			capacity *= 2;
+			s = (char*)realloc(s, capacity * sizeof(char));
 		}
 
-		c = getchar(); // считываем следующий символ          
+		c = getchar();   
 	}
 
-	s[*len] = '\0'; // завершаем строку символом конца строки
+	s[*len] = '\0';
 
-	return s; // возвращаем указатель на считанную строку
+	return s;
 }
 
 int main() 
 {
-	int len; // длина строки
-	char* s = get_string(&len); // считываем динамическую строку
+	int len;
+	char* s = get_string(&len);
 
 	string exp;
 	exp.length = len;
