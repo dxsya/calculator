@@ -1,13 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-
-
-typedef long double real;
 
 /*
 	Error _CALC
@@ -17,6 +13,8 @@ typedef long double real;
 	-53518506.2452: _CALC error [wrong result, example {*}]
 */
 
+typedef long double real;
+
 typedef struct String
 {
 	char* data;
@@ -25,7 +23,6 @@ typedef struct String
 
 typedef struct Node
 {
-	// 0 - int, 1 - char
 	int flag;
 	real number;
 	char operation;
@@ -35,7 +32,21 @@ typedef struct Node_arr
 {
 	node* arr;
 	int length;
+	int capacity;
 } node_arr;
+
+void add_node(node_arr* nodes, int flag, int number, char operation) 
+{	
+	if (nodes->capacity == 0)
+		nodes->arr = (node*)calloc(++nodes->capacity, sizeof(node));
+
+	if (nodes->length >= nodes->capacity)
+		nodes->arr = (node*)realloc(nodes->arr, ++nodes->capacity * sizeof(node));
+
+	nodes->arr[nodes->length].flag = flag;
+	nodes->arr[nodes->length].operation = operation;
+	nodes->arr[nodes->length++].number = number;
+}
 
 void push_back(string* str, char n)
 {
@@ -55,26 +66,29 @@ void push_back(string* str, char n)
 	free(temp);
 }
 
+int get_priority(char main, char a, char b, char c, char d) {
+	return (main == a || main == b || main == c || main == d);
+}
+
 node_arr translate_to_notation(string* expression)
 {
-	int notation_capacity = 1;
 	int operations_capacity = 1;
 
 	node_arr nodes;
-	nodes.arr = (node*)calloc(notation_capacity, sizeof(node));
 	nodes.length = 0;
+	nodes.capacity = 0;
 
 	string operations;
 	operations.length = 0;
 	operations.data = (char*)calloc(operations_capacity, sizeof(char));
 
 	string var;
-	real var_value = -1;
 	var.length = 0;
 	var.data = (char*)calloc(operations_capacity, sizeof(char));
 
-
+	real var_value = -1;
 	int number = -1;
+
 	for (int i = 0; i < expression->length; ++i)
 	{
 		if ((expression->data[i] >= '0' && expression->data[i] <= '9') ||
@@ -101,94 +115,55 @@ node_arr translate_to_notation(string* expression)
 		{
 			if (var_value != -1) 
 			{
-				for(int IND = 0; IND < var.length; ++IND)
-					printf("%c", var.data[IND]);
+				for(int letter = 0; letter < var.length; ++letter)
+					printf("%c", var.data[letter]);
 				printf(" = ");
 				scanf("%lf", &var_value);
 
 				free(var.data);
 				var.length = 0;
-				var.data = (char*)calloc(operations_capacity, sizeof(char));
 				number = var_value;
 			}
-
-			if (nodes.length >= notation_capacity)
-			{
-				nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-			}
-			nodes.arr[nodes.length].flag = 0;
-			nodes.arr[nodes.length++].number = number;
+			add_node(&nodes, 0, number, ' ');
 		}
 		number = -1;
 		var_value = -1;
 
-		int len__ = 0;
+		int op_len = operations.length;
 		switch (expression->data[i]) {
 		case '(':
 			push_back(&operations, '(');
 			break;
 		case '+':
-			len__ = operations.length;
-			while (len__ > 0 && (operations.data[len__ - 1] == '-' ||
-				operations.data[len__ - 1] == '*' ||
-				operations.data[len__ - 1] == '/' ||
-				operations.data[len__ - 1] == '^'))
+			while (op_len > 0 && get_priority(operations.data[op_len - 1], '-', '*', '/', '^'))
 			{
-				if (nodes.length >= notation_capacity) {
-					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-				}
-				nodes.arr[nodes.length].flag = 1;
-				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
-				len__--;
+				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
 			}
-			operations.length = len__;
+			operations.length = op_len;
 			push_back(&operations, '+');
 			break;
 		case '-':
-			len__ = operations.length;
-			while (len__ > 0 && (operations.data[len__ - 1] == '+' ||
-				operations.data[len__ - 1] == '*' ||
-				operations.data[len__ - 1] == '/' ||
-				operations.data[len__ - 1] == '^'))
+			while (op_len > 0 && get_priority(operations.data[op_len - 1], '+', '*', '/', '^'))
 			{
-				if (nodes.length >= notation_capacity) {
-					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-				}
-				nodes.arr[nodes.length].flag = 1;
-				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
-				len__--;
+				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
 			}
-			operations.length = len__;
+			operations.length = op_len;
 			push_back(&operations, '-');
 			break;
 		case '*':
-			len__ = operations.length;
-			while (len__ > 0 && (operations.data[len__ - 1] == '/' ||
-				operations.data[len__ - 1] == '^'))
+			while (op_len > 0 && get_priority(operations.data[op_len - 1], '/', '^', '#', '#'))
 			{
-				if (nodes.length >= notation_capacity) {
-					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-				}
-				nodes.arr[nodes.length].flag = 1;
-				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
-				len__--;
+				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
 			}
-			operations.length = len__;
+			operations.length = op_len;
 			push_back(&operations, '*');
 			break;
 		case '/':
-			len__ = operations.length;
-			while (len__ > 0 && (operations.data[len__ - 1] == '*' ||
-				operations.data[len__ - 1] == '^'))
+			while (op_len > 0 && get_priority(operations.data[op_len - 1], '*', '^', '#', '#'))
 			{
-				if (nodes.length >= notation_capacity) {
-					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-				}
-				nodes.arr[nodes.length].flag = 1;
-				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
-				len__--;
+				add_node(&nodes, 1, 0, operations.data[op_len-- - 1]);
 			}
-			operations.length = len__;
+			operations.length = op_len;
 			push_back(&operations, '/');
 			break;
 		case '^':
@@ -200,36 +175,19 @@ node_arr translate_to_notation(string* expression)
 					operations.length -= (operations.length - j);
 					break;
 				}
-
-				if (nodes.length >= notation_capacity) {
-					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-				}
-				nodes.arr[nodes.length].flag = 1;
-				nodes.arr[nodes.length++].operation = operations.data[j];
+				add_node(&nodes, 1, 0, operations.data[j]);
 			}
+			break;
 		}
 	}
 
 	if (number != -1)
-	{
-		if (nodes.length >= notation_capacity)
-		{
-			nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-		}
-		nodes.arr[nodes.length].flag = 0;
-		nodes.arr[nodes.length++].number = number;
-	}
+		add_node(&nodes, 0, number, ' ');
 
-	if (operations.length != 0) {
-		for (int j = operations.length - 1; j > -1; --j) {
+	if (operations.length != 0)
+		for (int j = operations.length - 1; j > -1; --j)
+			add_node(&nodes, 1, 0, operations.data[j]);
 
-			if (nodes.length >= notation_capacity) {
-				nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
-			}
-			nodes.arr[nodes.length].flag = 1;
-			nodes.arr[nodes.length++].operation = operations.data[j];
-		}
-	}
 	return nodes;
 }
 
@@ -345,28 +303,27 @@ real _CALC(string task)
 		return data.arr[0].number;
 }
 
-char* get_string(int* len) {
+char* get_string(int* len) 
+{
 	*len = 0;
 	int capacity = 1;
-	char* s = (char*)malloc(sizeof(char));
+	char* str = (char*)malloc(sizeof(char));
 
 	char c = getchar();
+	while (c != '\n') 
+	{
+		str[(*len)++] = c;
 
-
-	while (c != '\n') {
-		s[(*len)++] = c;
-
-		if (*len >= capacity) {
+		if (*len >= capacity) 
+		{
 			capacity *= 2;
-			s = (char*)realloc(s, capacity * sizeof(char));
+			str = (char*)realloc(str, capacity * sizeof(char));
 		}
-
 		c = getchar();
 	}
+	str[*len] = '\0';
 
-	s[*len] = '\0';
-
-	return s;
+	return str;
 }
 
 int main()
