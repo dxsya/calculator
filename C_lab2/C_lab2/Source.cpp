@@ -47,9 +47,12 @@ void push_back(string* str, char n)
 		new_str.data[i] = str->data[i];
 	new_str.data[str->length] = n;
 
+
+	char* temp = str->data;
 	str->data = new_str.data;
 	str->length = new_str.length;
-	free(new_str.data);
+
+	free(temp);
 }
 
 node_arr translate_to_notation(string* expression)
@@ -115,20 +118,73 @@ node_arr translate_to_notation(string* expression)
 		number = -1;
 		var_value = -1;
 		
+		int len__ = 0;
 		switch (expression->data[i]) {
 		case '(':
-			push_back(&operations, ')');
+			push_back(&operations, '(');
 			break;
 		case '+':
+			len__ = operations.length;
+			while (len__ > 0 && (operations.data[len__ - 1] == '-' ||
+				operations.data[len__ - 1] == '*' ||
+				operations.data[len__ - 1] == '/' ||
+				operations.data[len__ - 1] == '^'))
+			{
+				if (nodes.length >= notation_capacity) {
+					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+				}
+				nodes.arr[nodes.length].flag = 1;
+				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
+				len__--;
+			}
+			operations.length = len__;
 			push_back(&operations, '+');
 			break;
 		case '-':
+			len__ = operations.length;
+			while (len__ > 0 && (operations.data[len__ - 1] == '+' ||
+				operations.data[len__ - 1] == '*' ||
+				operations.data[len__ - 1] == '/' ||
+				operations.data[len__ - 1] == '^'))
+			{
+				if (nodes.length >= notation_capacity) {
+					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+				}
+				nodes.arr[nodes.length].flag = 1;
+				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
+				len__--;
+			}
+			operations.length = len__;
 			push_back(&operations, '-');
 			break;
 		case '*':
+			len__ = operations.length;
+			while (len__ > 0 && (operations.data[len__ - 1] == '/' ||
+				operations.data[len__ - 1] == '^'))
+			{
+				if (nodes.length >= notation_capacity) {
+					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+				}
+				nodes.arr[nodes.length].flag = 1;
+				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
+				len__--;
+			}
+			operations.length = len__;
 			push_back(&operations, '*');
 			break;
 		case '/':
+			len__ = operations.length;
+			while (len__ > 0 && (operations.data[len__ - 1] == '*' ||
+				operations.data[len__ - 1] == '^'))
+			{
+				if (nodes.length >= notation_capacity) {
+					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+				}
+				nodes.arr[nodes.length].flag = 1;
+				nodes.arr[nodes.length++].operation = operations.data[len__ - 1];
+				len__--;
+			}
+			operations.length = len__;
 			push_back(&operations, '/');
 			break;
 		case '^':
