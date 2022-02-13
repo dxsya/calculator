@@ -20,7 +20,13 @@ typedef struct Node
 	char operation;
 } node;
 
-node* translate_to_notation(string* expression)
+typedef struct Node_arr 
+{
+	node* arr;
+	int length;
+} node_arr;
+
+node_arr translate_to_notation(string* expression)
 {
 	int notation_length = 0, notation_capacity = 1;
 	node* notation = (node*)calloc(notation_capacity, sizeof(node));
@@ -43,14 +49,13 @@ node* translate_to_notation(string* expression)
 		if (number != -1)
 		{
 			if (notation_length >= notation_capacity) {
-				notation = (node*)realloc(notation, )
+				notation = (node*)realloc(notation, ++notation_capacity * sizeof(node));
 			}
-			notation[size - 1].flag = 0;
-			notation[size - 1].number = number;
+			notation[notation_length++].flag = 0;
+			notation[notation_length].number = number;
 		}
 		number = -1;
-
-
+		
 	}
 }
 
