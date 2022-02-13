@@ -98,6 +98,21 @@ void erase(string* str, int begin, int count)
 	str->length = new_str.length;
 }
 
+void na_erase(node_arr* data, int begin, int count)
+{
+	node_arr new_data;
+	new_data.length = data->length - count;
+	new_data.arr = malloc(sizeof(node*) * new_data.length);
+
+	for (int i = 0; i < begin; ++i)
+		new_data.arr[i] = data->arr[i];
+	for (int i = begin + count; i < data->length; ++i)
+		new_data.arr[i - count] = data->arr[i];
+
+	data->arr = new_data.arr;
+	data->length = new_data.length;
+}
+
 void insert(string* str, int index, string under)
 {
 	string new_str;
