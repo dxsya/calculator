@@ -109,8 +109,8 @@ node_arr translate_to_notation(string* expression)
 			{
 				nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
 			}
-			nodes.arr[nodes.length++].flag = 0;
-			nodes.arr[nodes.length].number = number;
+			nodes.arr[nodes.length].flag = 0;
+			nodes.arr[nodes.length++].number = number;
 		}
 		number = -1;
 		var_value = -1;
@@ -144,10 +144,20 @@ node_arr translate_to_notation(string* expression)
 				if (nodes.length >= notation_capacity) {
 					nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
 				}
-				nodes.arr[nodes.length++].flag = 1;
-				nodes.arr[nodes.length].operation = operations.data[j];
+				nodes.arr[nodes.length].flag = 1;
+				nodes.arr[nodes.length++].operation = operations.data[j];
 			}
 		}
+	}
+
+	if (number != -1)
+	{
+		if (nodes.length >= notation_capacity)
+		{
+			nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
+		}
+		nodes.arr[nodes.length].flag = 0;
+		nodes.arr[nodes.length++].number = number;
 	}
 
 	if (operations.length != 0) {
@@ -156,8 +166,8 @@ node_arr translate_to_notation(string* expression)
 			if (nodes.length >= notation_capacity) {
 				nodes.arr = (node*)realloc(nodes.arr, ++notation_capacity * sizeof(node));
 			}
-			nodes.arr[nodes.length++].flag = 1;
-			nodes.arr[nodes.length].operation = operations.data[j];
+			nodes.arr[nodes.length].flag = 1;
+			nodes.arr[nodes.length++].operation = operations.data[j];
 		}
 	}
 	return nodes;
