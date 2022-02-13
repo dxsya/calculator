@@ -233,8 +233,13 @@ void insert(string* str, int index, string under)
 	str->length = new_str.length;
 }
 
-real _CALC(node_arr data)
+real _CALC(char* task)
 {
+	string str;
+	init(&str, task);
+	remove_space(&str);
+	node_arr data = translate_to_notation(&str);
+	
 	for (int i = 0; i < data.length; ++i)
 	{
 		if (data.arr[i].flag)
