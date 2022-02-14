@@ -9,6 +9,22 @@
 
 typedef long double real;
 
+real hash_table[32500];
+
+void init_hash() 
+{
+	for (int i = 0; i < 32500; ++i)
+		hash_table[i] = -34456.52474;
+}
+
+int hash(string str)
+{
+	int res = 0;
+	for (int i = 0; i < str.length; ++i)
+		res += str.data[i] % 23;
+	return res;
+}
+
 int compare_op(char main, char a, char b, char c, char d)
 {
 	return (main == a || main == b || main == c || main == d);
@@ -22,9 +38,9 @@ int get_priority(char main, char operation)
 	else if (main == '-')
 		return (compare_op(operation, '+', '*', '/', '^'));
 	else if (main == '*')
-		return (compare_op(operation, '/', '^', '#', '#'));
+		return (compare_op(operation, '*', '/', '^', '#'));
 	else if (main == '/')
-		return (compare_op(operation, '*', '^', '#', '#'));
+		return (compare_op(operation, '/', '*', '^', '#'));
 	else if (main == '^')
 		return 0;
 }
@@ -34,20 +50,28 @@ void add_number_to_node(real number, real var_value, string* num, string* var, n
 	number = atof(num->data);
 	if (var_value != -1)
 	{
-		for (int letter = 0; letter < var->length; ++letter)
-			printf("%c", var->data[letter]);
-		printf(" = ");
-		scanf("%lf", &var_value);
+		real hash_num = hash_table[hash(*var)];
+		if (hash_num == -34456.52474)
+		{
+			for (int letter = 0; letter < var->length; ++letter)
+				printf("%c", var->data[letter]);
+			printf(" = ");
+			scanf("%lf", &var_value);
+			hash_table[hash(*var)] = var_value;
 
+			number = var_value;
+		}
+		else
+			number = hash_num;
 		free(var->data);
 		var->length = 0;
-		number = var_value;
 	}
 	add_node(nodes, 0, number, ' ');
 
 	free(num->data);
 	init(num);
 }
+
 
 node_arr translate_to_notation(string* expression)
 {
@@ -120,9 +144,9 @@ node_arr translate_to_notation(string* expression)
 		for (int j = operations.length - 1; j > -1; --j)
 			add_node(&nodes, 1, 0, operations.data[j]);
 
-	free(operations.data);
-	free(var.data);
-	free(num.data);
+//	free(operations.data);
+//	free(var.data);
+//	free(num.data);
 
 	return nodes;
 }
@@ -193,6 +217,8 @@ char* get_string(int* len)
 
 int main()
 {
+	init_hash();
+
 	int len;
 	char* s = get_string(&len);
 

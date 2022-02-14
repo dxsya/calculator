@@ -1,3 +1,3 @@
 ﻿  Source.cpp
-C:\Users\Alexey\Documents\dosya\calculator\C_lab2\C_lab2\Source.cpp(30): warning C4715: get_priority: значение возвращается не при всех путях выполнения
+C:\Users\Alexey\Documents\dosya\calculator\C_lab2\C_lab2\Source.cpp(46): warning C4715: get_priority: значение возвращается не при всех путях выполнения
   C_lab2.vcxproj -> C:\Users\Alexey\Documents\dosya\calculator\C_lab2\x64\Debug\C_lab2.exe

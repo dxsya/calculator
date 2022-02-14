@@ -78,5 +78,5 @@ void push_back(string* str, char n)
 	str->data = new_str.data;
 	str->length = new_str.length;
 
-	free(temp);
+	//free(temp);
 }
