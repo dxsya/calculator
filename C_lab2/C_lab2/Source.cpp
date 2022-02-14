@@ -29,72 +29,62 @@ int get_priority(char main, char operation)
 		return 0;
 }
 
+void add_number_to_node(real number, real var_value, string* num, string* var, node_arr* nodes) 
+{
+	number = atof(num->data);
+	if (var_value != -1)
+	{
+		for (int letter = 0; letter < var->length; ++letter)
+			printf("%c", var->data[letter]);
+		printf(" = ");
+		scanf("%lf", &var_value);
+
+		free(var->data);
+		var->length = 0;
+		number = var_value;
+	}
+	add_node(nodes, 0, number, ' ');
+
+	free(num->data);
+	init(num);
+}
+
 node_arr translate_to_notation(string* expression)
 {
-	int operations_capacity = 1;
-
 	node_arr nodes;
 	nodes.length = 0;
 	nodes.capacity = 0;
 
-	string operations;
-	operations.length = 0;
-	operations.data = (char*)calloc(operations_capacity, sizeof(char));
-
-	string num;
-	num.length = 0;
-	num.data = (char*)calloc(operations_capacity, sizeof(char));
-
-	string var;
-	var.length = 0;
-	var.data = (char*)calloc(operations_capacity, sizeof(char));
+	string operations, num, var;
+	init(&operations);
+	init(&num);
+	init(&var);
 
 	real var_value = -1;
 	real number = -1;
 
 	for (int i = 0; i < expression->length; ++i)
 	{
-		if ((expression->data[i] >= '0' && expression->data[i] <= '9') ||
-			(expression->data[i] >= 'A' && expression->data[i] <= 'Z') ||
-			(expression->data[i] >= 'a' && expression->data[i] <= 'z') ||
-			(expression->data[i] == '.'))
+		if (expression->data[i] >= '0' && expression->data[i] <= '9' || 
+			expression->data[i] == '.')
 		{
-			if (expression->data[i] >= '0' && expression->data[i] <= '9' || expression->data[i] == '.')
-			{
-				if (number == -1)
-					number = 0;
-				push_back(&num, expression->data[i]);
-				continue;
-			}
-			else
-			{
-				if (var_value == -1)
-					var_value = 0;
-				push_back(&var, expression->data[i]);
-				continue;
-			}
+			if (number == -1)
+				number = 0;
+			push_back(&num, expression->data[i]);
+			continue;
+		}
+		else if ((expression->data[i] >= 'A' && expression->data[i] <= 'Z') ||
+				 (expression->data[i] >= 'a' && expression->data[i] <= 'z'))
+		{
+			if (var_value == -1)
+				var_value = 0;
+			push_back(&var, expression->data[i]);
+			continue;
 		}
 
 		if (number != -1 || var_value != -1)
-		{
-			number = atof(num.data);
-			if (var_value != -1)
-			{
-				for (int letter = 0; letter < var.length; ++letter)
-					printf("%c", var.data[letter]);
-				printf(" = ");
-				scanf("%lf", &var_value);
+			add_number_to_node(number, var_value, &num, &var, &nodes);
 
-				free(var.data);
-				var.length = 0;
-				number = var_value;
-			}
-			add_node(&nodes, 0, number, ' ');
-
-			free(num.data);
-			num.length = 0;
-			num.data = (char*)calloc(operations_capacity, sizeof(char));
-		}
 		number = -1;
 		var_value = -1;
 
@@ -123,28 +113,16 @@ node_arr translate_to_notation(string* expression)
 	}
 
 	if (number != -1 || var_value != -1)
-	{
-		number = atof(num.data);
-		if (var_value != -1)
-		{
-			for (int letter = 0; letter < var.length; ++letter)
-				printf("%c", var.data[letter]);
-			printf(" = ");
-			scanf("%lf", &var_value);
+		add_number_to_node(number, var_value, &num, &var, &nodes);
 
-			free(var.data);
-			var.length = 0;
-			number = var_value;
-		}
-		add_node(&nodes, 0, number, ' ');
-
-		free(num.data);
-		num.data = (char*)calloc(operations_capacity, sizeof(char));
-	}
 
 	if (operations.length != 0)
 		for (int j = operations.length - 1; j > -1; --j)
 			add_node(&nodes, 1, 0, operations.data[j]);
+
+	free(operations.data);
+	free(var.data);
+	free(num.data);
 
 	return nodes;
 }

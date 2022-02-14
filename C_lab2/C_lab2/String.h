@@ -6,10 +6,10 @@ typedef struct String
 	int length;
 } string;
 
-void init(string* str, char* _str)
+void init(string* str)
 {
-	str->data = _str;
-	str->length = strlen(_str);
+	str->data = (char*)calloc(1, sizeof(char));
+	str->length = 0;
 }
 
 void remove_space(string* str)
@@ -65,6 +65,7 @@ void insert(string* str, int index, string under)
 void push_back(string* str, char n)
 {
 	string new_str;
+
 	new_str.length = str->length + 1;
 	new_str.data = (char*)malloc(sizeof(char) * new_str.length);
 
