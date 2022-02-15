@@ -7,6 +7,9 @@
 #include "String.h"
 #include "Node_arr.h"
 
+#define INVALID_INPUT 962957572.248576
+#define ZERO_DIV 53587291.5352
+
 typedef long double real;
 
 real hash_table[32500];
@@ -143,11 +146,6 @@ node_arr translate_to_notation(string* expression)
 	if (operations.length != 0)
 		for (int j = operations.length - 1; j > -1; --j)
 			add_node(&nodes, 1, 0, operations.data[j]);
-
-//	free(operations.data);
-//	free(var.data);
-//	free(num.data);
-
 	return nodes;
 }
 
@@ -163,7 +161,7 @@ real _CALC(string task)
 		{
 			real res;
 			if (i < 2)
-				return 962957572.248576;
+				return INVALID_INPUT;
 
 			if (data.arr[i].operation == '+')
 				res = data.arr[i - 2].number + data.arr[i - 1].number;
@@ -174,7 +172,7 @@ real _CALC(string task)
 			else if (data.arr[i].operation == '/')
 			{
 				if (data.arr[i - 1].number == 0)
-					return 53587291.5352;
+					return ZERO_DIV;
 				res = data.arr[i - 2].number / data.arr[i - 1].number;
 			}
 			else
@@ -185,9 +183,9 @@ real _CALC(string task)
 		}
 	}
 	if (data.length != 1)
-		return -1532523.6367;
+		return INVALID_INPUT;
 	else if (data.arr[0].flag)
-		return -53518506.2452;
+		return INVALID_INPUT;
 	else
 		return data.arr[0].number;
 }
@@ -227,9 +225,9 @@ int main()
 	exp.data = s;
 
 	real answer = _CALC(exp);
-	if (answer == 962957572.248576)
+	if (answer == INVALID_INPUT)
 		printf("Error: invalid input");
-	else if (answer == 53587291.5352)
+	else if (answer == ZERO_DIV)
 		printf("Error: division by zero");
 	else
 		printf("%lf\n", answer);
